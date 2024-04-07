@@ -1,0 +1,61 @@
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  USER
+  OWNER
+}
+
+model Category {
+  id           String    @id @default(uuid())
+  categoryName String
+  products     Product[]
+}
+
+model Product {
+  id           String            @id @default(uuid())
+  productName  String
+  productPrice Float
+  categoryId   String
+  category     Category          @relation(fields: [categoryId], references: [id])
+  inventories  Inventory[]
+  lineItems    InvoiceLineItem[]
+}
+
+model Inventory {
+  id          String  @id @default(uuid())
+  quantity    Int
+  stockStatus String
+  totalAmount Float
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+}
+
+model Invoice {
+  id            String            @id @default(uuid())
+  invoiceNumber String
+  invoiceDate   DateTime
+  buyerName     String
+  address       String
+  phone         String
+  lineItems     InvoiceLineItem[]
+}
+
+model InvoiceLineItem {
+  id          String  @id @default(uuid())
+  quantity    Int
+  unitPrice   Float
+  totalAmount Float
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id])
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+}
